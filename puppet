@@ -1,0 +1,83 @@
+node "annmags.localdomain" {
+
+include package,user,script,link,cron,timezone,hostname
+
+}
+
+
+#set of class
+
+class package {
+package { vim-enhanced :ensure => installed,}
+package { curl:ensure => installed,}
+package { git :ensure => installed,}
+}
+
+class user {
+user { 'monitor':
+ensure => present,
+comment => 'User Monitor',
+home => '/home/monitor',
+managehome => true,
+shell   => '/bin/bash', }
+}
+
+class script {
+        file { '/home/monitor/scripts':
+        ensure => 'directory', }
+
+        exec{'retrieve_github':
+    command => "/usr/bin/wget -q https://raw.githubusercontent.com/annmags/memor                                                                                        y-checker-and-puppet/master/memory_check.sh -O /home/monitor/scripts/memory_chec                                                                                        k.sh",
+    creates => "/home/monitor/scripts/memory_check.sh",
+  }
+
+file { '/home/monitor/scripts/memory_check.sh':
+  ensure => file,
+  owner  => 'root',
+  group  => 'root',
+  mode   => '777',
+}
+}
+
+class link {
+        file { '/home/monitor/src':
+    ensure => 'directory',
+                        }
+
+        file { '/home/monitor/src/my_memory_check':
+        ensure => 'link',
+        target => '/home/monitor/scripts/memory_check.sh',
+                }
+}
+
+class cron {
+cron { "shell script":
+        command => "sh /home/monitor/src/my_memory_check -c 85 -w 70 -e amnmagal                                                                                        lanes@chikka.com",
+        user => "root",
+        minute => '*/10',
+        ensure => present,
+}
+}
+
+class timezone {
+package {'tzdata':
+  ensure  => 'present'
+}
+
+
+file {'/etc/localtime':
+  require => Package['tzdata'],
+  source  => 'file:///usr/share/zoneinfo/Asia/Manila',
+}
+
+file {'/etc/timezone':
+  content => 'Asia/Manila',
+        }
+}
+
+class hostname {
+node 'bpx.server.local' {
+        include '<package name>'
+        }
+}
+
