@@ -70,6 +70,8 @@ done
                         echo "EmailAdrr: " ${e};
                         ext
                 else
-                        echo "NORMAL STATE"
+                        echo "Usage is Healthy"
+			echo "EmailAdrr: " ${e};
+			ext
                  fi
         fi
