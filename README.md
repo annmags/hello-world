@@ -1,5 +1,2 @@
-# hello-world
-
-Hello Humans!
-
-Just another repository
+Note:
+* Please install mutt using yum for email function
